@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:uas_mp/cubit/beritaterkini_cubit.dart';
+
+class BeritaScreen extends StatefulWidget {
+  const BeritaScreen({Key? key}) : super(key: key);
+
+  @override
+  State<BeritaScreen> createState() => _BeritaTerkiniScreenState();
+}
+
+class _BeritaTerkiniScreenState extends State<BeritaScreen> {
+  final BeritaNewsCubit BeritanewsCubit = BeritaNewsCubit();
+
+  @override
+  void initState() {
+    BeritanewsCubit.getDataBeritaModel();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Column(
+          children: [
+            Center(child: Text('SULTAN RAFLY S - 191011450112')),
+            Text('BERITA TERBARU INDONESIA'),
+          ],
+        ),
+      ),
+      body: BlocBuilder<BeritaNewsCubit, BeritaTerkiniState>(
+        bloc: BeritanewsCubit,
+        builder: (context, state) {
+          if (state is BeritaInitial) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          return ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+            itemCount: BeritanewsCubit.BeritaModel.data?.length ?? 0,
+            itemBuilder: (context, index) {
+              final parsedDate = DateTime.parse(
+                  BeritanewsCubit.BeritaModel.data![index].pubDate!);
+              final date = DateFormat('dd-MM-yyyy').format(parsedDate);
+              return Card(
+                child: ListTile(
+                  leading: Image.network(BeritanewsCubit
+                      .BeritaModel.data![index].thumbnail!),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                  title: Text(
+                    BeritanewsCubit.BeritaModel.data![index].title!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Text(
+                        textAlign: TextAlign.left,
+                        date,
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Text(
+                        textAlign: TextAlign.justify,
+                        'ini subtitle dari ' +
+                            BeritanewsCubit
+                                .BeritaModel.data![index].description!,
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
